@@ -1,0 +1,9 @@
+- hosts: local
+  become: true
+  tasks:
+    - name: Ensure UTF-8 locale is set
+      lineinfile:
+        path: /etc/environment
+        regexp: '^LANG='
+        line: 'LANG=C.UTF-8'
+      notify: Reload environment
