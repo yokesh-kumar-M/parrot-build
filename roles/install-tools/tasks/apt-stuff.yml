@@ -52,6 +52,11 @@
       - curl
       - gh
       - python3-debian
+      - golang-go
+      - ruby
+      - ruby-dev
+      - build-essential
+      - dconf-cli
     state: latest
   become: true
   become_method: sudo
@@ -107,6 +112,52 @@
       - containerd.io
       - docker-buildx-plugin
       - docker-compose-plugin
+    state: latest
+  become: true
+  become_method: sudo
+
+- name: "Ensure APT keyrings directory exists for VSCode"
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+  become: true
+  become_method: sudo
+
+- name: "Add Microsoft GPG key for VSCode"
+  ansible.builtin.get_url:
+    url: "https://packages.microsoft.com/keys/microsoft.asc"
+    dest: "/etc/apt/keyrings/packages.microsoft.gpg"
+    mode: "0644"
+  become: true
+  become_method: sudo
+
+- name: "Configure the VSCode APT repository"
+  ansible.builtin.deb822_repository:
+    name: vscode
+    types: [deb]
+    uris: "https://packages.microsoft.com/repos/code"
+    suites: [stable]
+    components: [main]
+    architectures: [amd64]
+    signed_by: /etc/apt/keyrings/packages.microsoft.gpg
+    state: present
+    enabled: true
+  register: vscode_repo
+  become: true
+  become_method: sudo
+
+- name: "Update apt cache after configuring the VSCode repository"
+  ansible.builtin.apt:
+    update_cache: true
+  when: vscode_repo.changed
+  become: true
+  become_method: sudo
+
+- name: "Install VSCode"
+  package:
+    name:
+      - code
     state: latest
   become: true
   become_method: sudo

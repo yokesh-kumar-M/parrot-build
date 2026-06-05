@@ -19,12 +19,13 @@
     key: "/org/mate/terminal/global/profile-list"
     state: "read"
   register: "profile_list"
+  failed_when: false
 
 - name: "profile_list was not set, setting"
   set_fact:
     profile_list: 
       value: '["default"]'
-  when: profile_list.value is none
+  when: profile_list is failed or profile_list.value is none or profile_list.value is not defined
 
 - name: "Adding our profile"
   set_fact:
@@ -34,10 +35,12 @@
   dconf:
     key: "/org/mate/terminal/global/profile-list"
     value: "{{ new_profile_list }}"
-  when: "'video' not in profile_list.value"
+  when: "'video' not in (profile_list.value | default(''))"
+  failed_when: false
   
 - name: "Restoring Video Profile from Dump"
   shell:
     cmd: "dconf load /org/mate/terminal/profiles/video/ < {{ role_path }}/files/dconf-dump-video"
-  when: "'video' not in profile_list.value"
+  when: "'video' not in (profile_list.value | default(''))"
+  failed_when: false
 

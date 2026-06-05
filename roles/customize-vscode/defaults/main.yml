@@ -11,3 +11,6 @@ vscode_extensions:
   - DEVSENSE.phptools-vscode
   - GitHub.copilot
   - snyk-security.snyk-vulnerability-scanner
+  - golang.go
+  - ms-vscode.cpptools
+  - redhat.vscode-yaml

@@ -17,7 +17,7 @@
   ansible.builtin.command:
     cmd: "code --install-extension {{ item }}"
   loop: "{{ vscode_extensions }}"
-  when: (item | lower) not in (vscode_installed_extensions.stdout_lines | map('lower') | list)
+  when: (item | lower) not in (vscode_installed_extensions.stdout_lines | default([]) | map('lower') | list)
   register: vscode_extension_install
   changed_when: "'successfully installed' in (vscode_extension_install.stdout | default(''))"
   failed_when: false

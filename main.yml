@@ -9,9 +9,6 @@
     - role: "roles/customize-browser"
     - role: "roles/configure-logging"
     - role: "roles/configure-system"
-    # gantsign installs the `code` binary; extensions are handled by the
-    # customize-vscode role below so a single failing extension cannot abort
-    # the run.
-    - role: gantsign.visual-studio-code
     - role: "roles/customize-vscode"
+
 
