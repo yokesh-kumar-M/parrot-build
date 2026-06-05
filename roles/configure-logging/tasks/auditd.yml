@@ -78,7 +78,8 @@
   become_method: sudo
 
 - name: "Running install -m755 laurel /usr/local/sbin/laurel"
-  command: "install -m755 laurel /usr/local/sbin/laurel"
+  shell: |
+    find . -type f -name laurel -exec install -m755 {} /usr/local/sbin/laurel \;
   args:
     chdir: /tmp/laurel/
   become: true
