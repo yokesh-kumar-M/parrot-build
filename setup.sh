@@ -21,6 +21,15 @@ echo -e "\e[0m"
 echo -e "\e[1;33m[*] Refreshing sudo credentials...\e[0m"
 sudo -v
 
+# Clean up conflicting legacy VS Code keys and sources from previous runs
+if [ -f /etc/apt/sources.list.d/vscode.sources ] && grep -q "packages.microsoft.gpg" /etc/apt/sources.list.d/vscode.sources; then
+    echo -e "\e[1;33m[*] Cleaning up conflicting legacy VS Code repository configuration...\e[0m"
+    sudo rm -f /etc/apt/sources.list.d/vscode.sources
+fi
+if [ -f /etc/apt/keyrings/packages.microsoft.gpg ]; then
+    sudo rm -f /etc/apt/keyrings/packages.microsoft.gpg
+fi
+
 # Check for updates and install base dependencies
 echo -e "\e[1;33m[*] Updating package list & installing base dependencies...\e[0m"
 sudo apt-get update
