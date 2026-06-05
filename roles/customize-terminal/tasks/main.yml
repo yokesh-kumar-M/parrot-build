@@ -1,18 +1,25 @@
----
 - name: "Copy BashRC"
   copy:
     src: "{{ role_path }}/files/.bashrc"
-    dest: "{{ ansible_facts['env']['HOME'] }}"
+    dest: "{{ real_user_home }}/.bashrc"
+    owner: "{{ real_user }}"
+    group: "{{ real_user }}"
+    mode: '0644'
+  become: true
 
 - name: "Ensure .bash_profile sources .bashrc inside tmux"
   lineinfile:
-    path: "{{ ansible_facts['env']['HOME'] }}/.bash_profile"
+    path: "{{ real_user_home }}/.bash_profile"
     line: |
       if [[ -n "$TMUX" ]]; then
           source ~/.bashrc
       fi
     insertafter: EOF
     create: yes
+    owner: "{{ real_user }}"
+    group: "{{ real_user }}"
+    mode: '0644'
+  become: true
     
 - name: "Read current mate terminal profiles"
   dconf:
@@ -20,6 +27,8 @@
     state: "read"
   register: "profile_list"
   failed_when: false
+  become: true
+  become_user: "{{ real_user }}"
 
 - name: "profile_list was not set, setting"
   set_fact:
@@ -37,10 +46,14 @@
     value: "{{ new_profile_list }}"
   when: "'video' not in (profile_list.value | default(''))"
   failed_when: false
+  become: true
+  become_user: "{{ real_user }}"
   
 - name: "Restoring Video Profile from Dump"
   shell:
     cmd: "dconf load /org/mate/terminal/profiles/video/ < {{ role_path }}/files/dconf-dump-video"
   when: "'video' not in (profile_list.value | default(''))"
   failed_when: false
+  become: true
+  become_user: "{{ real_user }}"
 

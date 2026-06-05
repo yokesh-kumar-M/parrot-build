@@ -12,6 +12,8 @@
   register: vscode_installed_extensions
   changed_when: false
   failed_when: false
+  become: true
+  become_user: "{{ real_user }}"
 
 - name: "Install missing VS Code extensions (tolerating stderr and collisions)"
   ansible.builtin.command:
@@ -21,3 +23,5 @@
   register: vscode_extension_install
   changed_when: "'successfully installed' in (vscode_extension_install.stdout | default(''))"
   failed_when: false
+  become: true
+  become_user: "{{ real_user }}"

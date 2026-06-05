@@ -22,7 +22,7 @@ if [ -n "$burp" ] && [ -n "$java_bin" ]; then
     echo "[*] Using Java binary: $java_bin"
     
     # Start Burp headlessly in background. It automatically listens on port 8080
-    timeout 45 "$java_bin" -Djava.awt.headless=true -jar "$burp" < <(echo y) &
+    timeout 45 "$java_bin" -Djava.awt.headless=true -jar "$burp" --headless < <(echo y) &
     
     # Loop and check if the port is open and we can download the certificate
     echo "[*] Waiting for Burp Suite web server to start up..."
