@@ -51,22 +51,46 @@
       - ca-certificates
       - curl
       - gh
+      - python3-debian
     state: latest
   become: true
   become_method: sudo
 
-- name: "Add Docker keyring to apt"
-  apt_key:
-    url: "https://download.docker.com/linux/debian/gpg"
-    state: present
+- name: "Ensure APT keyrings directory exists"
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
   become: true
   become_method: sudo
 
-- name: "Install Docker Repository"
-  apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ distribution }} stable"
+- name: "Add Docker's official GPG key to /etc/apt/keyrings"
+  ansible.builtin.get_url:
+    url: "https://download.docker.com/linux/debian/gpg"
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+  become: true
+  become_method: sudo
+
+- name: "Configure the Docker APT repository (DEB822)"
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: [deb]
+    uris: "https://download.docker.com/linux/debian"
+    suites: "{{ distribution | default(ansible_facts['distribution_release'], true) }}"
+    components: [stable]
+    architectures: [amd64]
+    signed_by: /etc/apt/keyrings/docker.asc
     state: present
-    update_cache: yes
+    enabled: true
+  register: docker_repo
+  become: true
+  become_method: sudo
+
+- name: "Update apt cache after configuring the Docker repository"
+  ansible.builtin.apt:
+    update_cache: true
+  when: docker_repo.changed
   become: true
   become_method: sudo
 
